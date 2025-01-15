@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -16,18 +16,35 @@ export class AuthorsService {
   }
 
   findAll() {
-    return `This action returns all authors`;
+    return this.authorModel.find().populate('books').exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} author`;
+  findOne(username: string) {
+    return this.authorModel.findOne({
+      name:username
+    }).populate('books').exec();
+
   }
 
-  update(id: number, updateAuthorDto: UpdateAuthorDto) {
-    return `This action updates a #${id} author`;
+  async update(id: string, updateAuthorDto: UpdateAuthorDto) {
+
+    const author = await this.authorModel.findByIdAndUpdate(id, updateAuthorDto, { new: true });
+
+    if(!author){
+      throw new HttpException(`Author with the id ${id} not found`,HttpStatus.NOT_FOUND)
+    }
+
+    return author
+
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} author`;
+  async remove(id: string) {
+    const author=await this.authorModel.findById(id)
+    if(!author){
+      throw new HttpException(`Author with the ${id} not found`,HttpStatus.NOT_FOUND)
+    }
+
+     return await this.authorModel.deleteOne({ _id: id });
+
   }
 }

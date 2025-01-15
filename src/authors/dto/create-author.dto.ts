@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsDate, IsString } from "class-validator";
+import { IsDate, IsString,IsArray,IsMongoId,IsOptional } from "class-validator";
 
 export class CreateAuthorDto {
    
@@ -12,5 +12,10 @@ export class CreateAuthorDto {
     @IsDate()
     @Type(() => Date)
     birthDate:Date
+
+    @IsArray()
+    @IsOptional()
+    @IsMongoId({ each: true }) // Validate that each item in the array is a valid MongoDB ObjectId
+    books:string[]
 }
 
