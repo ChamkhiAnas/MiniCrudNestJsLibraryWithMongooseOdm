@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Types } from "mongoose";
 
 @Schema()
 export class Author{
@@ -14,6 +15,9 @@ export class Author{
 
     @Prop({ type: Date})
     birthDate:Date
+
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'Book' }] }) // Array of Book references
+    books: Types.ObjectId[];
 
 }
 
