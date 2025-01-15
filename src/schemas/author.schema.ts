@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 @Schema()
 export class Author{
 
-    @Prop({ required: true})
+    @Prop()
     id:number;
 
     @Prop({ type: String})

@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthorsModule } from './authors/authors.module';
+import { BooksModule } from './books/books.module';
+import { GenresModule } from './genres/genres.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { AuthorsModule } from './authors/authors.module';
       inject: [ConfigService],
     }),
     AuthorsModule,
+    BooksModule,
+    GenresModule,
   
   ],
   controllers: [],

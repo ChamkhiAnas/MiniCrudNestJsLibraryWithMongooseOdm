@@ -11,7 +11,8 @@ export class AuthorsService {
   constructor(@InjectModel(Author.name) private authorModel:Model<Author>){}
 
   create(createAuthorDto: CreateAuthorDto) {
-    return 'This action adds a new author';
+    const author = new this.authorModel(createAuthorDto)
+    return author.save()
   }
 
   findAll() {
