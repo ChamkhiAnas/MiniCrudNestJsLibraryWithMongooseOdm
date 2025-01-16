@@ -1,26 +1,47 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateGenreDto } from './dto/create-genre.dto';
 import { UpdateGenreDto } from './dto/update-genre.dto';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Genre } from 'src/schemas/genre.schema';
 
 @Injectable()
 export class GenresService {
+  constructor(
+    @InjectModel(Genre.name) private genreModel:Model<Genre>,
+
+){}
   create(createGenreDto: CreateGenreDto) {
-    return 'This action adds a new genre';
+    const genre = new this.genreModel(createGenreDto)
+    return genre.save()
   }
 
   findAll() {
-    return `This action returns all genres`;
+    return this.genreModel.find().populate('books').exec()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} genre`;
+  findOne(username: string) {
+    return this.genreModel.findOne({
+      name:username
+    }).populate('books').exec()
   }
 
-  update(id: number, updateGenreDto: UpdateGenreDto) {
-    return `This action updates a #${id} genre`;
+  async update(id: string, updateGenreDto: UpdateGenreDto) {
+    const genre = await this.genreModel.findByIdAndUpdate(id, updateGenreDto, { new: true });
+
+    if(!genre){
+      throw new HttpException(`Genre with the id ${id} not found`, HttpStatus.NOT_FOUND)
+    }
+
+    return genre
+
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} genre`;
+  async remove(id: string) {
+    const genre = await this.genreModel.findById(id)
+    if(!genre){
+      throw new HttpException(`Genre with the id ${id} not found`, HttpStatus.NOT_FOUND)
+    }
+    return await genre.deleteOne({_id:id})
   }
 }

@@ -16,9 +16,6 @@ export class Author{
     @Prop({ type: Date})
     birthDate:Date
 
-    @Prop({ type: [{ type: Types.ObjectId, ref: 'Book' }] }) // Array of Book references
-    books: Types.ObjectId[];
-
 }
 
 export const AuthorSchema=SchemaFactory.createForClass(Author)

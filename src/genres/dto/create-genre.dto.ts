@@ -1,6 +1,6 @@
 
 import { Type } from "class-transformer";
-import {  IsString,IsArray,IsMongoId } from "class-validator";
+import {  IsString,IsArray,IsMongoId,IsOptional } from "class-validator";
 
 
 export class CreateGenreDto {
@@ -10,8 +10,9 @@ export class CreateGenreDto {
 
     @IsString()
     description:string;
-
+    
+    @IsOptional()
     @IsArray()
-    @IsMongoId({ each: true }) // Validate that each item in the array is a valid MongoDB ObjectId
+    @IsMongoId({ each: true }) 
     books: string[];
 }

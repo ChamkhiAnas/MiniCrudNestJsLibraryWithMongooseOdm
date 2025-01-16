@@ -19,6 +19,8 @@ export class CreateBookDto {
     @IsMongoId({ each: true }) 
     genres: string[];
 
+    @IsMongoId() 
+    author: string;
 
 }
 

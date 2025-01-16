@@ -19,6 +19,9 @@ export class Book{
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Genre' }] }) // Array of Book references
     genres: Types.ObjectId[];
 
+    @Prop({ type: Types.ObjectId, ref: 'Author' }) // Single reference to an Author
+    author: Types.ObjectId;
+
 }
 
 export const BookSchema=SchemaFactory.createForClass(Book)

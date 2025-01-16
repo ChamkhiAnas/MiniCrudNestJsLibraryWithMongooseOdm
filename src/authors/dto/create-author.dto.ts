@@ -13,9 +13,5 @@ export class CreateAuthorDto {
     @Type(() => Date)
     birthDate:Date
 
-    @IsArray()
-    @IsOptional()
-    @IsMongoId({ each: true }) // Validate that each item in the array is a valid MongoDB ObjectId
-    books:string[]
 }
 
