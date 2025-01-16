@@ -16,7 +16,7 @@ export class AuthorsService {
   }
 
   findAll() {
-    return this.authorModel.find();
+    return this.authorModel.find().populate("books").exec()
   }
 
   findOne(username: string) {

@@ -1,17 +1,19 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { Author } from 'src/schemas/author.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Book } from './entities/book.entity';
 import { Genre } from 'src/genres/entities/genre.entity';
+import { Author } from 'src/schemas/author.schema';
 @Injectable()
 export class BooksService {
 
   constructor(
     @InjectModel(Book.name) private bookModel:Model<Book>,
-    @InjectModel(Genre.name) private genreModel:Model<Book>,
+    @InjectModel(Genre.name) private genreModel:Model<Genre>,
+    @InjectModel(Author.name) private authorModel:Model<Author>,
+
 
 
 ){}
@@ -21,15 +23,26 @@ export class BooksService {
     const savedBook = await book.save();
 
     const genres= await this.genreModel.find({_id:{$in:createBookDto.genres}});
+    const author= await this.authorModel.find({_id:createBookDto.author})
+  
 
     if (genres.length !== createBookDto.genres.length) {
-      throw new HttpException('Some books do not exist in the genres',HttpStatus.NOT_FOUND);
+      throw new HttpException('Some genresn does not exist',HttpStatus.NOT_FOUND);
+    }
+
+    if(!author){
+      throw new HttpException(`Author not found with the id ${createBookDto.author}`,HttpStatus.NOT_FOUND)
     }
 
     await this.genreModel.updateMany(
       { _id: { $in: createBookDto.genres } }, // Find all genres in the array
       { $push: { books: savedBook._id } },   // Push the book ID into their books array
     );
+
+    await this.authorModel.updateOne(
+      { _id: createBookDto.author }, 
+      { $push: { books: savedBook._id } }, 
+    )
 
     return savedBook
   }
@@ -49,6 +62,13 @@ export class BooksService {
     if (!currentBook) {
       throw new HttpException(`Book with ID ${id} not found`,HttpStatus.NOT_FOUND);
     }
+
+    const author= await this.authorModel.find({_id:updateBookDto.author})
+
+    if(!author){
+      throw new HttpException(`Author with ID ${id} not found`,HttpStatus.NOT_FOUND);
+    }
+
 
     //2) check if genres id in updateBookDto exist in genres collection 
     const genres = await this.genreModel.find({ _id: { $in: updateBookDto.genres } });
@@ -71,6 +91,18 @@ export class BooksService {
       { _id: { $in: bookUpdated["genres"] } },
       { $push: { books: bookUpdated["_id"] } }, // Add the book ID to the `books` array
     );
+
+
+    await this.authorModel.updateOne(
+      { _id: currentBook["author"] }, 
+      { $pull: { books: currentBook["_id"] } }, 
+    )
+
+    await this.authorModel.updateOne(
+      { _id: bookUpdated["author"] }, 
+      { $push: { books: bookUpdated["_id"] } }, 
+    )
+
 
     return bookUpdated;
 
