@@ -18,34 +18,55 @@ export class BooksService {
 
 ){}
 
-  async create(createBookDto: CreateBookDto) {
-    const book=new this.bookModel(createBookDto)
-    const savedBook = await book.save();
+async create(createBookDto: CreateBookDto) {
+  const session = await this.bookModel.db.startSession(); // Start a session
+  session.startTransaction(); // Start a transaction
 
-    const genres= await this.genreModel.find({_id:{$in:createBookDto.genres}});
-    const author= await this.authorModel.find({_id:createBookDto.author})
-  
+  try {
+    // Step 1: Save the book with session
+    const book = new this.bookModel(createBookDto);
+    const savedBook = await book.save({ session });
 
+    // Step 2: Validate genres
+    const genres = await this.genreModel.find({ _id: { $in: createBookDto.genres } }).session(session);
     if (genres.length !== createBookDto.genres.length) {
-      throw new HttpException('Some genresn does not exist',HttpStatus.NOT_FOUND);
+      throw new HttpException('Some genres do not exist', HttpStatus.NOT_FOUND);
     }
 
-    if(!author){
-      throw new HttpException(`Author not found with the id ${createBookDto.author}`,HttpStatus.NOT_FOUND)
+    // Step 3: Validate author
+    const author = await this.authorModel.findOne({ _id: createBookDto.author }).session(session);
+    if (!author) {
+      throw new HttpException(`Author not found with the id ${createBookDto.author}`, HttpStatus.NOT_FOUND);
     }
 
+    // Step 4: Update genres with the new book
     await this.genreModel.updateMany(
-      { _id: { $in: createBookDto.genres } }, // Find all genres in the array
-      { $push: { books: savedBook._id } },   // Push the book ID into their books array
+      { _id: { $in: createBookDto.genres } },
+      { $push: { books: savedBook._id } },
+      { session } // Pass the session
     );
 
+    // Step 5: Update author with the new book
     await this.authorModel.updateOne(
-      { _id: createBookDto.author }, 
-      { $push: { books: savedBook._id } }, 
-    )
+      { _id: createBookDto.author },
+      { $push: { books: savedBook._id } },
+      { session } // Pass the session
+    );
 
-    return savedBook
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    return savedBook;
+
+  } catch (error) {
+    // Abort the transaction on error
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
   }
+}
+
 
   findAll() {
     return this.bookModel.find()
