@@ -2,19 +2,19 @@ import { Module } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { BooksController } from './books.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Author, AuthorSchema } from 'src/schemas/author.schema';
 import { Book,BookSchema } from 'src/schemas/book.schema';
+import { Genre,GenreSchema } from 'src/schemas/genre.schema';
 
 @Module({
   imports:[
     MongooseModule.forFeature([
       {
-        name:Author.name,
-        schema:AuthorSchema
-      },
-      {
         name:Book.name,
         schema:BookSchema
+      },
+      {
+        name:Genre.name,
+        schema:GenreSchema
       },
     ])
   ],

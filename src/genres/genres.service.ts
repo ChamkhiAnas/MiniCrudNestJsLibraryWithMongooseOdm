@@ -20,9 +20,9 @@ export class GenresService {
     return this.genreModel.find().populate('books').exec()
   }
 
-  findOne(username: string) {
+  findOne(id: string) {
     return this.genreModel.findOne({
-      name:username
+      _id:id
     }).populate('books').exec()
   }
 

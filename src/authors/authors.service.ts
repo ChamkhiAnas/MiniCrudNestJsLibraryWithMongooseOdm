@@ -16,13 +16,13 @@ export class AuthorsService {
   }
 
   findAll() {
-    return this.authorModel.find().populate('books').exec();
+    return this.authorModel.find();
   }
 
   findOne(username: string) {
     return this.authorModel.findOne({
       name:username
-    }).populate('books').exec();
+    })
 
   }
 

@@ -17,9 +17,9 @@ export class GenresController {
     return this.genresService.findAll();
   }
 
-  @Get(':username')
-  findOne(@Param('username') username: string) {
-    return this.genresService.findOne(username);
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.genresService.findOne(id);
   }
 
   @Put(':id')
