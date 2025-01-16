@@ -20,6 +20,12 @@ export class BooksService {
     const book=new this.bookModel(createBookDto)
     const savedBook = await book.save();
 
+    const genres= await this.genreModel.find({_id:{$in:createBookDto.genres}});
+
+    if (genres.length !== createBookDto.genres.length) {
+      throw new HttpException('Some books do not exist in the genres',HttpStatus.NOT_FOUND);
+    }
+
     await this.genreModel.updateMany(
       { _id: { $in: createBookDto.genres } }, // Find all genres in the array
       { $push: { books: savedBook._id } },   // Push the book ID into their books array
@@ -74,7 +80,21 @@ export class BooksService {
 
   async remove(id: string) {
 
+  const currentBook=await this.bookModel.findById(id)
 
-    return `This action removes a #${id} book`;
+  if(!currentBook){
+    throw new HttpException(`book with this id ${id} not found`,HttpStatus.NOT_FOUND)
+  }
+
+  await this.genreModel.updateMany(
+    { _id: { $in: currentBook["genres"] } },
+    { $pull: { books: currentBook["_id"] } }, // Remove the book ID from the `books` array
+  );
+
+  return await currentBook.deleteOne({_id:id})
+
+
+
+
   }
 }
