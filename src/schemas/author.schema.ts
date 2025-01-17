@@ -2,23 +2,18 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types } from "mongoose";
 
 @Schema()
-export class Author{
+export class Author {
+  @Prop({ required: true })
+  name: string;
 
-    @Prop()
-    id:number;
+  @Prop({ required: true })
+  bio: string;
 
-    @Prop({ type: String})
-    name:string;
+  @Prop({ required: true })
+  birthDate: Date;
 
-    @Prop({ type: String })
-    bio:string;
-
-    @Prop({ type: Date})
-    birthDate:Date
-
-    @Prop({ type: [{ type: Types.ObjectId, ref: 'Book' }] })
-    books: Types.ObjectId[];
-
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Book' }] })  // Reference to Book collection
+  books: Types.ObjectId[];
 }
 
-export const AuthorSchema=SchemaFactory.createForClass(Author)
+export const AuthorSchema = SchemaFactory.createForClass(Author);

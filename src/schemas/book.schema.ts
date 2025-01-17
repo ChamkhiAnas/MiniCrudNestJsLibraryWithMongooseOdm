@@ -2,26 +2,21 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Types } from "mongoose";
 
 @Schema()
-export class Book{
-    @Prop()
-    id:number;
+export class Book {
+  @Prop({ required: true })  // No need for a custom 'id', MongoDB provides '_id' automatically
+  title: string;
 
-    @Prop({type:String})
-    title:string;
+  @Prop({ required: true })
+  summary: string;
 
-    @Prop({type:String})
-    summary:string;
+  @Prop({ required: true })
+  publishedDate: Date;
 
-    @Prop({type:Date})
-    publishedDate:Date;
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Genre' }] })  // Reference to Genre collection
+  genres: Types.ObjectId[];
 
-
-    @Prop({ type: [{ type: Types.ObjectId, ref: 'Genre' }] }) // Array of Book references
-    genres: Types.ObjectId[];
-
-    @Prop({ type: Types.ObjectId, ref: 'Author' }) // Single reference to an Author
-    author: Types.ObjectId;
-
+  @Prop({ type: Types.ObjectId, ref: 'Author' })  // Reference to Author collection
+  author: Types.ObjectId;
 }
 
-export const BookSchema=SchemaFactory.createForClass(Book)
+export const BookSchema = SchemaFactory.createForClass(Book);

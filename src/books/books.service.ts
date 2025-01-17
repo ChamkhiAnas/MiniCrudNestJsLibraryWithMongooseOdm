@@ -3,8 +3,8 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Book } from './entities/book.entity';
-import { Genre } from 'src/genres/entities/genre.entity';
+import { Book } from 'src/schemas/book.schema';
+import { Genre } from 'src/schemas/genre.schema';
 import { Author } from 'src/schemas/author.schema';
 @Injectable()
 export class BooksService {
@@ -68,12 +68,38 @@ async create(createBookDto: CreateBookDto) {
 }
 
 
-  findAll() {
-    return this.bookModel.find()
-  }
+async findAll() {
 
-  findOne(id: string) {
-    return this.bookModel.findById(id)
+  const result = await this.bookModel
+  .find()
+  .populate({
+    path: 'genres',
+    model: 'Genre', // Explicitly specify the model
+    select: 'name description' // Only select these fields
+  })
+  .populate({
+    path:'author',
+    select: 'name bio birthdate'
+  })
+  .exec();
+
+  return result
+}
+
+  async findOne(id: string) {
+
+    const book = await this.bookModel.findOne( { _id: id } )
+    .populate({
+      path: 'genres',
+      model: 'Genre', // Explicitly specify the model
+      select: 'name description' // Only select these fields
+    })
+    .populate({
+      path:'author',
+      select: 'name bio birthdate'
+    })
+    .exec();
+    return book
   }
 
   async update(id: string, updateBookDto: UpdateBookDto) {
@@ -143,6 +169,11 @@ async create(createBookDto: CreateBookDto) {
     { _id: { $in: currentBook["genres"] } },
     { $pull: { books: currentBook["_id"] } }, // Remove the book ID from the `books` array
   );
+
+  await this.authorModel.updateOne(
+    { _id: currentBook["author"] }, 
+    { $pull: { books: currentBook["_id"] } }, 
+);
 
   return await currentBook.deleteOne({_id:id})
 
