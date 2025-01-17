@@ -79,6 +79,8 @@ async findAll() {
   })
   .populate({
     path:'author',
+    model: 'Author', // Explicitly specify the model
+
     select: 'name bio birthdate'
   })
   .exec();
@@ -91,8 +93,8 @@ async findAll() {
     const book = await this.bookModel.findOne( { _id: id } )
     .populate({
       path: 'genres',
-      model: 'Genre', // Explicitly specify the model
-      select: 'name description' // Only select these fields
+      model: 'Genre', 
+      select: 'name description' 
     })
     .populate({
       path:'author',
