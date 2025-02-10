@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthorsModule } from './authors/authors.module';
-import { BooksModule } from './books/books.module';
-import { GenresModule } from './genres/genres.module';
+import { AuthorsModule } from './modules/authors/authors.module';
+import { BooksModule } from './modules/books/books.module';
+import { GenresModule } from './modules/genres/genres.module';
 
 @Module({
   imports: [

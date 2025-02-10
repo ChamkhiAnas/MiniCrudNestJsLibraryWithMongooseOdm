@@ -2,14 +2,15 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { AuthorId } from 'src/common/decorators/AuthorId.decorator';
 
 @Controller('books')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Post()
-  create(@Body() createBookDto: CreateBookDto) {
-    return this.booksService.create(createBookDto);
+  create(@Body() createBookDto: CreateBookDto, @AuthorId("CLUB") authorId) {
+    return "AuthorId"+authorId;
   }
 
   @Get()
